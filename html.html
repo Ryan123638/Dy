@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>只能選一個答案遊戲</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    .button {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 10px;
+      border: 2px solid black;
+      border-radius: 5px;
+      background-color: #f0f0f0;
+    }
+    #runaway {
+      position: absolute;
+    }
+    #stats {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    #stats span {
+      margin: 0 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>只能選一個答案！</h1>
+  <div id="gameArea">
+    <button class="button" id="correctBtn" onclick="selectAnswer('correct')">叫爸爸</button>
+    <button class="button" id="runaway" onmouseover="moveButton()">不要</button>
+  </div>
+  <div id="alreadyPlayed" style="display:none; font-size: 20px; color: red;">
+    你已經玩過這個遊戲了喔！
+  </div>
+
+  <div id="stats">
+    <span>選擇正確: <span id="correctStat">0</span></span>
+    <span>選擇錯誤: <span id="wrongStat">0</span></span>
+  </div>
+
+  <script>
+    const runawayButton = document.getElementById("runaway");
+    const correctBtn = document.getElementById("correctBtn");
+    const correctStat = document.getElementById("correctStat");
+    const wrongStat = document.getElementById("wrongStat");
+    const alreadyPlayed = document.getElementById("alreadyPlayed");
+    const gameArea = document.getElementById("gameArea");
+
+    let hasSelected = false;
+    let correctCount = 0;
+    let wrongCount = 0;
+
+    // 防止後台操作
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+        alert("不允許進入後台!");
+        e.preventDefault();
+        return false;
+      }
+    });
+    document.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+      alert("不允許右鍵操作!");
+    });
+
+    function moveButton() {
+      const x = Math.random() * (window.innerWidth - 100);
+      const y = Math.random() * (window.innerHeight - 50);
+      runawayButton.style.left = `${x}px`;
+      runawayButton.style.top = `${y}px`;
+    }
+
+    function selectAnswer(choice) {
+      if (hasSelected) {
+        alert("你已經選過答案，無法再選擇！");
+        return;
+      }
+
+      hasSelected = true;
+      localStorage.setItem("played", "yes");
+      runawayButton.style.display = 'none';
+
+      if (choice === 'correct') {
+        correctCount++;
+        alert("恭喜你選對了！");
+      } else {
+        wrongCount++;
+        alert("你選錯了！");
+      }
+
+      correctStat.innerText = correctCount;
+      wrongStat.innerText = wrongCount;
+    }
+
+    // 頁面載入時判斷是否已玩過
+    window.onload = function () {
+      if (localStorage.getItem("played") === "yes") {
+        gameArea.style.display = "none";
+        alreadyPlayed.style.display = "block";
+      } else {
+        moveButton(); // 初始化逃跑按鈕位置
+      }
+    };
+  </script>
+</body>
+</html>
